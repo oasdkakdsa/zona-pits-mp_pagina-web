@@ -22,17 +22,17 @@ const HomePage = () => {
         </section>
 
         {/* Botón Flotante para abrir la columna lateral */}
-        <button
-          onClick={toggleColumn}
-          className={`fixed top-1/2 right-0 transform -translate-y-1/2 translate-x-1/2 p-3 rounded-full bg-yellow-500 text-white shadow-lg z-50
-                      hover:bg-yellow-600 transition-all duration-300 ease-in-out
-                      ${isColumnOpen ? 'rotate-180 -translate-x-full mr-2' : ''} /* Gira y mueve el botón si la columna está abierta */
-                      animate-bounce-slow`} /* Animación de rebote sutil */
-          style={{ marginRight: isColumnOpen ? '26rem' : '0rem' }} // Ajusta el margen para mover el botón junto con la columna
-        >
-          <IoInformationCircleOutline className="w-8 h-8" /> {/* Icono de información */}
-        </button>
-
+        {!isColumnOpen && (
+          <button
+            onClick={toggleColumn}
+            className={`fixed bottom-5 right-20  p-3 rounded-full bg-yellow-500 text-white shadow-lg z-50
+                        hover:bg-yellow-600 transition-all duration-300 ease-in-out
+                        animate-bounce-slow`}
+            style={{ marginRight: '0rem' }}
+          >
+            <IoInformationCircleOutline className="w-8 h-8" /> {/* Icono de información */}
+          </button>
+        )}
 
         {/* Columna Lateral de Videos */}
         <SideVideoColumn isOpen={isColumnOpen} onClose={toggleColumn} />

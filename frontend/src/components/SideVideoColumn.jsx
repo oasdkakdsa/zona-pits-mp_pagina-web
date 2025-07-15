@@ -25,12 +25,12 @@ function SideVideoColumn({ isOpen, onClose }) {
 
   return (
     <div
-      className={`fixed top-0 right-0 h-full w-full md:w-96 bg-gray-900 bg-opacity-95 backdrop-blur-md shadow-2xl p-6 transform transition-transform duration-500 ease-in-out z-40
+      className={`fixed top-0 right-0 h-full w-full md:w-96 bg-gray-900 bg-opacity-95 backdrop-blur-md shadow-2xl p-6 transform transition-transform duration-500 ease-in-out z-[100]
         ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
     >
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-yellow-400">Contenido Exclusivo</h2>
-        <button onClick={onClose} className="text-gray-300 hover:text-white transition-colors duration-300">
+        <button onClick={onClose} className="bg-transparent p-0 text-gray-300 hover:text-white transition-colors duration-300">
           <IoCloseCircleOutline className="w-8 h-8" />
         </button>
       </div>
