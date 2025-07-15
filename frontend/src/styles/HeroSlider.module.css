@@ -14,11 +14,14 @@
   width: 100%;
   height: 100%;
   opacity: 0; /* Por defecto, los slides están ocultos */
-  transition: opacity 1s ease-in-out; /* Transición suave para el fundido */
+  /* Aseguramos que la transición de opacidad se aplique correctamente */
+  transition: opacity 1s ease-in-out; 
+  z-index: 1; /* Los slides inactivos tienen un z-index bajo */
 }
 
 .slide.activeSlide {
   opacity: 1; /* El slide activo es visible */
+  z-index: 2; /* El slide activo se muestra sobre los demás inactivos */
 }
 
 .slideImage {
@@ -36,7 +39,7 @@
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.4); /* Overlay semitransparente oscuro */
-  z-index: 10; /* Asegura que el overlay esté encima de la imagen */
+  z-index: 10; /* Asegura que el overlay esté encima de la imagen (dentro de su slide) */
 }
 
 .content {
@@ -59,7 +62,7 @@
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6); /* Sombra para mejorar contraste */
   /* Responsividad para el título */
   @media (min-width: 768px) { /* Para pantallas medianas y grandes */
-    font-size: 3.5em;
+      font-size: 3.5em;
   }
 }
 
@@ -70,7 +73,7 @@
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6); /* Sombra para mejorar contraste */
   /* Responsividad para la descripción */
   @media (min-width: 768px) {
-    font-size: 1.5em;
+      font-size: 1.5em;
   }
 }
 
@@ -82,7 +85,7 @@
   margin-top: 20px; /* Margen superior para separar de la descripción */
 
   @media (min-width: 640px) { /* En pantallas pequeñas y más grandes, en fila */
-    flex-direction: row;
+      flex-direction: row;
   }
 }
 
@@ -106,10 +109,10 @@
 /* --- Keyframes para la animación de zoom --- */
 @keyframes zoom {
   0% {
-    transform: scale(1); /* Estado inicial: sin zoom */
+      transform: scale(1); /* Estado inicial: sin zoom */
   }
   100% {
-    transform: scale(1.1); /* Estado final: 10% de zoom */
+      transform: scale(1.1); /* Estado final: 10% de zoom */
   }
 }
 
@@ -122,7 +125,7 @@
   color: white; /* Flecha blanca */
   border: none;
   cursor: pointer;
-  z-index: 30;
+  z-index: 30; /* Las flechas deben estar siempre por encima del contenido y slides */
   opacity: 0.8; /* Ligeramente transparente por defecto */
   transition: opacity 0.3s ease, transform 0.2s ease;
   font-size: 3em; /* Tamaño grande para el símbolo de la flecha */

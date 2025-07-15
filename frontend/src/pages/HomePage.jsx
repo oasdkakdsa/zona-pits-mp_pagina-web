@@ -1,16 +1,42 @@
 // frontend/src/pages/HomePage.jsx
-import React from 'react';
+import React, { useState } from 'react';
 import ImageSlider from '../components/ImageSlider';
+import SideVideoColumn from '../components/SideVideoColumn'; // Importa el nuevo componente
+import { IoInformationCircleOutline } from 'react-icons/io5'; // Icono para el botón
 
 const HomePage = () => {
+  const [isColumnOpen, setIsColumnOpen] = useState(false);
+
+  const toggleColumn = () => {
+    setIsColumnOpen(!isColumnOpen);
+  };
+
   return (
     <>
-      {/* Sección Hero: El contenedor principal del slider */}
-      {/* h-[750px] define una altura fija. Puedes ajustarla a h-[800px] si prefieres más alto. */}
-      {/* overflow-hidden es crucial para contener el efecto de zoom */}
-      <section className="relative w-full h-[750px] overflow-hidden">
-        <ImageSlider />
-      </section>
+      {/* Sección Hero y Columna Lateral */}
+      {/* Contenedor principal que permite posicionar la columna lateral */}
+      <div className="relative w-full overflow-hidden">
+        {/* Slider */}
+        <section className="relative w-full h-[750px]">
+          <ImageSlider />
+        </section>
+
+        {/* Botón Flotante para abrir la columna lateral */}
+        <button
+          onClick={toggleColumn}
+          className={`fixed top-1/2 right-0 transform -translate-y-1/2 translate-x-1/2 p-3 rounded-full bg-yellow-500 text-white shadow-lg z-50
+                      hover:bg-yellow-600 transition-all duration-300 ease-in-out
+                      ${isColumnOpen ? 'rotate-180 -translate-x-full mr-2' : ''} /* Gira y mueve el botón si la columna está abierta */
+                      animate-bounce-slow`} /* Animación de rebote sutil */
+          style={{ marginRight: isColumnOpen ? '26rem' : '0rem' }} // Ajusta el margen para mover el botón junto con la columna
+        >
+          <IoInformationCircleOutline className="w-8 h-8" /> {/* Icono de información */}
+        </button>
+
+
+        {/* Columna Lateral de Videos */}
+        <SideVideoColumn isOpen={isColumnOpen} onClose={toggleColumn} />
+      </div>
 
       {/* Resto del contenido de tu página principal (sin cambios) */}
       <main className="flex-grow container mx-auto p-8 mt-8">

@@ -1,10 +1,23 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  darkMode: 'class', // <--- ¡AÑADE ESTA LÍNEA!
-  content: ["./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",],
+  darkMode: 'class',
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
   theme: {
-    extend: {},
+    extend: {
+      // ** Aquí se añade la configuración de keyframes y animation **
+      keyframes: {
+        'bounce-slow': {
+          '0%, 100%': { transform: 'translateY(-50%) translateX(50%)' }, // Posición original del botón
+          '50%': { transform: 'translateY(-55%) translateX(50%)' }, // Ligero movimiento hacia arriba
+        },
+      },
+      animation: {
+        'bounce-slow': 'bounce-slow 3s infinite ease-in-out', // Aplica la animación cada 3 segundos, suave
+      },
+    },
   },
   plugins: [
     require('tailwindcss/plugin')(function ({ addUtilities }) {
