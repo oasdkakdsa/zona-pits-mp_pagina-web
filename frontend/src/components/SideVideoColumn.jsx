@@ -25,7 +25,7 @@ function SideVideoColumn({ isOpen, onClose }) {
 
   return (
     <div
-      className={`fixed top-0 right-0 h-full w-full md:w-96 bg-gray-900 bg-opacity-95 backdrop-blur-md shadow-2xl p-6 transform transition-transform duration-500 ease-in-out z-40
+      className={`fixed top-0 right-0 h-full w-full md:w-96 bg-gray-900 bg-opacity-95 backdrop-blur-md shadow-2xl p-6 transform transition-transform duration-500 ease-in-out z-[100]
         ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
     >
       <div className="flex justify-between items-center mb-6">
