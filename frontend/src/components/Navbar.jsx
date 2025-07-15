@@ -1,5 +1,5 @@
 // frontend/src/components/Navbar.jsx
-import React, { useState } from 'react'; // Eliminado useEffect ya no necesario
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { IoSearchOutline, IoNotificationsOutline, IoSunnyOutline, IoMoonOutline, IoMenu, IoClose } from 'react-icons/io5';
 import { FaUserCircle } from 'react-icons/fa';
@@ -46,19 +46,25 @@ function Navbar() {
   };
 
   return (
-    <nav className="bg-gray-950 bg-opacity-30 backdrop-blur-md shadow-xl py-4 sticky top-0 z-50 
+    <nav className="bg-gray-950 bg-opacity-30 backdrop-blur-md shadow-xl py-4 sticky top-0 z-50
                     dark:bg-gray-950 dark:bg-opacity-30 transition-all duration-300 ease-in-out">
       <div className="container mx-auto flex justify-between items-center px-4">
-        {/* Logo (Vuelto a su estado original, horizontal y sin subtexto adicional) */}
-        <div className="text-white text-3xl font-extrabold tracking-wide drop-shadow-lg">
-          <Link to="/" className="hover:text-yellow-300 transition duration-300">Zona Pits MP</Link>
+        {/* Logo y Significado de ZONA PITS MP */}
+        <div className="flex flex-col items-center md:items-start"> {/* Flexbox para alinear verticalmente */}
+          <div className="text-white text-3xl font-extrabold tracking-wide drop-shadow-lg">
+            <Link to="/" className="hover:text-yellow-300 transition duration-300">Zona Pits MP</Link>
+          </div>
+          {/* Este es el nuevo texto estático para el significado debajo del logo */}
+          <span className="text-gray-300 text-xs md:text-sm mt-1 max-w-xs text-center md:text-left leading-tight">
+            Portal Integral para Técnicos de Soporte de Maquinaria Pesada
+          </span>
         </div>
 
         {/* Sección de Navegación Principal (Desktop) */}
         <div className="hidden md:flex space-x-7 items-center">
           {isAuthenticated && (
-            <Link 
-              to="/dashboard" 
+            <Link
+              to="/dashboard"
               className="text-gray-200 dark:text-gray-50 px-4 py-2 rounded-full font-semibold text-lg
                         transition-all duration-300 ease-in-out hover:bg-white hover:bg-opacity-10 dark:hover:bg-gray-700 dark:hover:bg-opacity-50 hover:shadow-md hover:-translate-y-0.5"
             >
@@ -101,8 +107,8 @@ function Navbar() {
 
           {isAuthenticated ? (
             <>
-              <Link to="/profile" className="text-white bg-blue-600 hover:bg-blue-700 transition-all duration-300 px-5 py-2 rounded-full 
-                                            flex items-center space-x-2 shadow-lg hover:shadow-xl hover:-translate-y-0.5 
+              <Link to="/profile" className="text-white bg-blue-600 hover:bg-blue-700 transition-all duration-300 px-5 py-2 rounded-full
+                                            flex items-center space-x-2 shadow-lg hover:shadow-xl hover:-translate-y-0.5
                                             focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-70">
                 {user?.profilePicture ? (
                   <img
@@ -118,16 +124,16 @@ function Navbar() {
               </Link>
               <button
                 onClick={handleLogout}
-                className="text-white bg-red-600 hover:bg-red-700 transition-all duration-300 px-5 py-2 rounded-full 
-                                   shadow-lg hover:shadow-xl hover:-translate-y-0.5 
+                className="text-white bg-red-600 hover:bg-red-700 transition-all duration-300 px-5 py-2 rounded-full
+                                   shadow-lg hover:shadow-xl hover:-translate-y-0.5
                                    focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-opacity-70"
               >
                 Cerrar Sesión
               </button>
             </>
           ) : (
-            <Link to="/login" className="text-white bg-yellow-500 hover:bg-yellow-600 transition-all duration-300 px-5 py-2 rounded-full 
-                                         shadow-lg hover:shadow-xl hover:-translate-y-0.5 
+            <Link to="/login" className="text-white bg-yellow-500 hover:bg-yellow-600 transition-all duration-300 px-5 py-2 rounded-full
+                                         shadow-lg hover:shadow-xl hover:-translate-y-0.5
                                          focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-opacity-70">
               Iniciar Sesión
             </Link>
@@ -143,9 +149,9 @@ function Navbar() {
       </div>
 
       {/* Menú Móvil (visible solo cuando isMobileMenuOpen es true) */}
-      <div 
-        className={`md:hidden absolute top-full left-0 w-full bg-gray-800 bg-opacity-90 backdrop-blur-sm 
-                    dark:bg-gray-900 dark:bg-opacity-90 shadow-lg px-4 py-3 transform 
+      <div
+        className={`md:hidden absolute top-full left-0 w-full bg-gray-800 bg-opacity-90 backdrop-blur-sm
+                    dark:bg-gray-900 dark:bg-opacity-90 shadow-lg px-4 py-3 transform
                     transition-all duration-300 ease-in-out origin-top ${
                       isMobileMenuOpen ? 'scale-y-100 opacity-100' : 'scale-y-0 opacity-0 pointer-events-none'
                     }`}
@@ -160,7 +166,7 @@ function Navbar() {
           <Link onClick={toggleMobileMenu} to="#" className="block text-gray-200 dark:text-gray-50 hover:bg-gray-700 dark:hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-base font-medium">Capacitación</Link>
           <Link onClick={toggleMobileMenu} to="#" className="block text-gray-200 dark:text-gray-50 hover:bg-gray-700 dark:hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-base font-medium">Comunidad</Link>
           <Link onClick={toggleMobileMenu} to="#" className="block text-gray-200 dark:text-gray-50 hover:bg-gray-700 dark:hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-base font-medium">Contacto</Link>
-          
+
           <hr className="border-gray-700 dark:border-gray-600 my-2" />
 
           <button className="w-full text-left block text-gray-200 dark:text-gray-50 hover:bg-gray-700 dark:hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-base font-medium flex items-center space-x-2">
