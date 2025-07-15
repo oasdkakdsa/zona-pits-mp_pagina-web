@@ -30,7 +30,7 @@ function SideVideoColumn({ isOpen, onClose }) {
     >
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-yellow-400">Contenido Exclusivo</h2>
-        <button onClick={onClose} className="text-gray-300 hover:text-white transition-colors duration-300">
+        <button onClick={onClose} className="bg-transparent p-0 text-gray-300 hover:text-white transition-colors duration-300">
           <IoCloseCircleOutline className="w-8 h-8" />
         </button>
       </div>
