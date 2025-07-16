@@ -1,95 +1,111 @@
-// frontend/src/pages/LoginPage.jsx
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google'; // Importa Google OAuth components
-import axios from 'axios'; // Importa axios para hacer peticiones HTTP
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+import { LogIn, Lock, Zap } from 'lucide-react';
+import axios from 'axios';
 
-function LoginPage() {
+export default function LoginPage() {
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false); // Mantener el estado de carga para el botón de Google
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  // Función que se ejecuta cuando el inicio de sesión con Google es exitoso
-  const handleGoogleSuccess = async (credentialResponse) => {
+  const handleGoogleSuccess = async (response) => {
     setLoading(true);
     setError('');
     try {
-      console.log('Credenciales de Google recibidas:', credentialResponse);
-      const idToken = credentialResponse.credential; // Este es el ID Token de Google
-
-      // Envía el ID Token de Google a tu backend para verificación y autenticación
-      const response = await axios.post('http://localhost:3000/api/auth/google', { idToken }); // CAMBIA ESTA URL a la de tu backend si es diferente
-
-      if (response.data.token) {
-        login(response.data.token); // Llama a la función login del AuthContext con el JWT de tu app
-        navigate('/dashboard'); // Redirige al dashboard
+      const idToken = response.credential;
+      const res = await axios.post('http://localhost:3000/api/auth/google', { idToken });
+      if (res.data.token) {
+        login(res.data.token);
+        navigate('/dashboard');
       } else {
-        throw new Error('No se recibió el token de autenticación del servidor.');
+        throw new Error('No recibimos token del servidor');
       }
-    } catch (err) {
-      console.error('Error al iniciar sesión con Google:', err);
-      setError(err.response?.data?.message || err.message || 'Error al iniciar sesión con Google. Inténtalo de nuevo.');
+    } catch (e) {
+      setError(e.response?.data?.message || e.message);
     } finally {
       setLoading(false);
     }
   };
 
-  // Función que se ejecuta si el inicio de sesión con Google falla
   const handleGoogleError = () => {
-    console.error('Inicio de sesión con Google fallido');
-    setError('No se pudo completar el inicio de sesión con Google. Inténtalo de nuevo.');
+    setError('Error al iniciar sesión con Google.');
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-200 dark:bg-gray-800 p-4">
-      <div className="bg-white dark:bg-gray-900 p-8 rounded-lg shadow-2xl w-full max-w-md transform transition duration-300 hover:scale-105">
-        <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-6">
-          Iniciar Sesión
-        </h2>
-        <p className="text-center text-gray-600 dark:text-gray-400 mb-8">
-          Accede a tu portal de soporte de maquinaria pesada.
-        </p>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800 p-6">
+      <div className="w-full max-w-sm bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
+        <div className="text-center mb-6">
+          <h1 className="text-2xl font-semibold text-gray-800 dark:text-gray-200">Bienvenido</h1>
+          <p className="text-gray-600 dark:text-gray-400 text-sm">Accede al portal de maquinaria pesada</p>
+        </div>
 
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6" role="alert">
-            <strong className="font-bold">¡Error! </strong>
-            <span className="block sm:inline">{error}</span>
+          <div className="flex items-center bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 rounded-md p-3 mb-6">
+            <Lock size={16} className="mr-2" />
+            <span className="text-sm">{error}</span>
           </div>
         )}
 
-        {/* Contenedor del botón de Google Login */}
-        <div className="flex justify-center mb-6">
+        <div className="mb-6">
+          {/* <GoogleOAuthProvider clientId="168786462680-4c83krupj1iu7lbsp6vo89k4vfp4b1mu.apps.googleusercontent.com"> */}
           <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || process.env.REACT_APP_GOOGLE_CLIENT_ID}>
             <GoogleLogin
               onSuccess={handleGoogleSuccess}
               onError={handleGoogleError}
-              // Puedes personalizar el botón con clases de Tailwind si usas un componente de botón personalizado
-              // theme="filled_blue" // o "outline", "filled_black"
-              // size="large" // o "medium", "small"
-              // type="standard" // o "icon"
-              // shape="rectangular" // o "circle", "square", "pill"
-              // text="signin_with" // "signin_with", "signup_with", "continue_with"
-            />
+              theme="filled_black"// o "outline", "filled_black"
+              size="large"
+              width="100%"
+              shape="circle" // o "circle", "square", "pill"
+            >
+              <button
+                disabled={loading}
+                className="w-full flex items-center justify-center border border-gray-900 dark:border-gray-200 rounded-md py-2 transition hover:bg-gray-900 dark:hover:bg-gray-700 disabled:opacity-50 bg-transparent"
+              >
+                <LogIn className="mr-2 text-gray-900 dark:text-gray-200" size={20} />
+                <span className="text-gray-900 dark:text-gray-200 font-medium">
+                  {loading ? 'Iniciando...' : 'Continuar con Google'}
+                </span>
+              </button>
+            </GoogleLogin>
           </GoogleOAuthProvider>
         </div>
 
-        {/* Mensaje o enlace para usuarios no registrados (ahora se registrarán via Google) */}
-        <p className="text-center text-gray-600 dark:text-gray-400 text-sm mt-4">
-          Al iniciar sesión con Google, aceptas nuestros{' '}
-          <Link to="/terms" className="text-yellow-500 hover:text-yellow-600 font-bold transition duration-300">
+        <div className="flex items-center text-xs text-gray-500 dark:text-gray-400 mb-6">
+          <span className="flex-grow border-t border-gray-300 dark:border-gray-600"></span>
+          <span className="px-2">Seguro y confiable</span>
+          <span className="flex-grow border-t border-gray-300 dark:border-gray-600"></span>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className="flex flex-col items-center">
+            <div className="p-2 mb-2">
+              <Lock size={18} className="text-gray-600 dark:text-gray-300" />
+            </div>
+            <span className="text-gray-700 dark:text-gray-300 text-xs">Encriptado</span>
+          </div>
+
+          <div className="flex flex-col items-center">
+            <div className="p-2 mb-2">
+              <Zap size={18} className="text-gray-600 dark:text-gray-300" />
+            </div>
+            <span className="text-gray-700 dark:text-gray-300 text-xs">Rápido</span>
+          </div>
+        </div>
+
+        <div className="text-center text-xs text-gray-500 dark:text-gray-400">
+          Al continuar, aceptas nuestros{' '}
+          <Link to="/terms" className="underline text-blue-600 dark:text-blue-400">
             Términos de Servicio
-          </Link>
-          {' y '}
-          <Link to="/privacy" className="text-yellow-500 hover:text-yellow-600 font-bold transition duration-300">
+          </Link>{' '}
+          y{' '}
+          <Link to="/privacy" className="underline text-blue-600 dark:text-blue-400">
             Política de Privacidad
           </Link>
-          .
-        </p>
+        </div>
       </div>
     </div>
   );
 }
-
-export default LoginPage;
