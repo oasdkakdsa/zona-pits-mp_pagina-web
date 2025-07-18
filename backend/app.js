@@ -16,7 +16,7 @@ app.use(express.json());
 // servir estáticos
 app.use('/uploads/profile_pictures', express.static(path.join(__dirname, 'uploads/profile_pictures')));
 
-// Usa las rutas importadass
+// Usa las rutas importadas
 app.use('/api/auth', authRoutes); // Aquí es donde tu ruta /api/auth/google se monta
 app.use('/api/users', userRoutes);
 app.use('/api/profile', profileRoutes);
