@@ -1,4 +1,3 @@
-// frontend/src/main.jsx
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import {
@@ -6,51 +5,51 @@ import {
   RouterProvider,
 } from 'react-router-dom';
 
-// Importamos el componente de App (que ahora será nuestro layout principal)
 import App from './App.jsx';
 import './index.css';
 
-// Importamos todas las páginas y componentes necesarios para las rutas
 import LoginPage from './pages/LoginPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
-import HomePage from './pages/HomePage.jsx'; // Tu página de inicio con el contenido Hero y las Cards
+import HomePage from './pages/HomePage.jsx';
 import DashboardPage from './pages/DashboardPage.jsx';
-import ProfilePage from './pages/ProfilePage.jsx'; 
+import ProfilePage from './pages/ProfilePage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
-import ProtectedRoute from './components/ProtectedRoute'; // Importa ProtectedRoute aquí
+import ProtectedRoute from './components/ProtectedRoute';
+
+import { AuthProvider } from './context/AuthContext.jsx';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 // Definimos nuestras rutas con createBrowserRouter
 const router = createBrowserRouter([
   {
-    // La ruta principal '/' usará App como su componente de layout
     path: '/',
-    element: <App />, // App ahora es tu layout principal con Navbar y AuthProvider
-    errorElement: <NotFoundPage />, // Opcional: un elemento de error global para esta rama
+    element: <App />,
+    errorElement: <NotFoundPage />,
     children: [
-      // Rutas públicas que se renderizan dentro del <Outlet> de App
       {
-        index: true, // Esto hace que HomePage se renderice en '/'
+        index: true,
         element: <HomePage />,
       },
       {
-        path: 'login', // Ruta para /login
+        path: 'login',
         element: <LoginPage />,
       },
       {
-        path: 'register', // Ruta para /register
+        path: 'register',
         element: <RegisterPage />,
       },
+      // La ruta para el callback de Outlook ya no es necesaria aquí.
 
       // Rutas Protegidas Generales (cualquier usuario autenticado)
       {
-        element: <ProtectedRoute />, // ProtectedRoute actuará como un layout que verifica la autenticación
+        element: <ProtectedRoute />,
         children: [
           {
-            path: 'dashboard', // Ruta para /dashboard
+            path: 'dashboard',
             element: <DashboardPage />,
           },
           {
-            path: 'profile', // <-- NUEVO: Ruta para el perfil
+            path: 'profile',
             element: <ProfilePage />,
           },
         ],
@@ -64,9 +63,12 @@ const router = createBrowserRouter([
   },
 ]);
 
-
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <RouterProvider router={router} /> 
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+      <AuthProvider>
+        <RouterProvider router={router} />
+      </AuthProvider>
+    </GoogleOAuthProvider>
   </React.StrictMode>,
 );

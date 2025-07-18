@@ -1,8 +1,9 @@
 // backend/routes/auth.js
-const router = require('express').Router();
-const { googleAuth } = require('../controllers/authController'); // Importa solo la nueva función de Google Auth
+const express = require('express');
+const router = express.Router();
+const authController = require('../controllers/authController');
 
-// Ruta para el inicio de sesión con Google
-router.post('/google', googleAuth);
+// Ruta para la autenticación de Google (inicio de sesión/registro unificado)
+router.post('/google', authController.googleAuth);
 
 module.exports = router;

@@ -1,102 +1,132 @@
-// backend/controllers/authController.js
-const db = require('../config/db'); // Tu pool de conexiones
+const { OAuth2Client } = require('google-auth-library');
 const jwt = require('jsonwebtoken');
-const { secret, expiresIn } = require('../config/jwt'); // Tu configuración JWT
-const { OAuth2Client } = require('google-auth-library'); // Importa Google OAuth
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
-const client = new OAuth2Client(GOOGLE_CLIENT_ID);
+const User = require('../models/User');
+const dotenv = require('dotenv');
 
-/**
- * Función para autenticar/registrar usuarios a través de Google.
- * Recibe el ID Token de Google del frontend.
- */
+dotenv.config();
+
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
 exports.googleAuth = async (req, res) => {
-  const { idToken } = req.body; // El token enviado desde el frontend
+    const { idToken } = req.body;
 
-  if (!idToken) {
-    return res.status(400).json({ message: 'ID Token de Google no proporcionado.' });
-  }
-
-  try {
-    // 1. Verificar el ID Token de Google
-    const ticket = await client.verifyIdToken({
-      idToken: idToken,
-      audience: GOOGLE_CLIENT_ID, // Asegúrate de que este sea tu ID de cliente de Google
-    });
-
-    const payload = ticket.getPayload();
-    const { email, name, picture } = payload; // Obtener información del usuario de Google
-
-    console.log('[Google Auth] Payload verificado:', { email, name, picture });
-
-    // 2. Buscar/Crear usuario en tu base de datos
-    let [users] = await db.execute(
-      'SELECT id, username, email, role, profile_picture FROM users WHERE email = ?',
-      [email]
-    );
-
-    let user = users[0];
-
-    if (!user) {
-      // Si el usuario no existe, regístralo
-      const defaultRole = 'user'; // Rol por defecto para nuevos usuarios de Google
-      const usernameFromGoogle = name || email.split('@')[0]; // Usa el nombre de Google o parte del email
-
-      console.log(`[Google Auth] Usuario no encontrado, registrando nuevo usuario: ${email}`);
-
-      const [result] = await db.execute(
-        'INSERT INTO users (username, email, role, profile_picture) VALUES (?, ?, ?, ?)',
-        [usernameFromGoogle, email, defaultRole, picture || null] // Guarda la foto de perfil de Google
-      );
-
-      user = {
-        id: result.insertId,
-        username: usernameFromGoogle,
-        email: email,
-        role: defaultRole,
-        profile_picture: picture || null
-      };
-      console.log(`[Google Auth] Nuevo usuario registrado con ID: ${user.id}`);
-    } else {
-      console.log(`[Google Auth] Usuario existente encontrado: ${email}`);
-      // Opcional: Si el usuario ya existe pero no tiene foto de perfil y Google sí la proporciona, actualízala.
-      if (!user.profile_picture && picture) {
-        await db.execute(
-          'UPDATE users SET profile_picture = ? WHERE id = ?',
-          [picture, user.id]
-        );
-        user.profile_picture = picture; // Actualiza el objeto user para la respuesta JWT
-        console.log(`[Google Auth] Foto de perfil actualizada para usuario ${user.id}`);
-      }
+    // Verificar que el token fue enviado
+    if (!idToken) {
+        return res.status(400).json({ message: 'Token de Google requerido.' });
     }
 
-    // 3. Generar tu propio JWT para la aplicación
-    const appToken = jwt.sign(
-      {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        role: user.role,
-        profilePicture: user.profile_picture // Incluir la URL de la foto de perfil
-      },
-      secret, // Usa el secreto de tu config/jwt.js
-      { expiresIn: expiresIn } // Usa la expiración de tu config/jwt.js
-    );
+    // Verificar que las variables de entorno estén configuradas
+    if (!process.env.GOOGLE_CLIENT_ID) {
+        console.error('[Google Auth] GOOGLE_CLIENT_ID no configurado en las variables de entorno');
+        return res.status(500).json({ message: 'Error de configuración del servidor.' });
+    }
 
-    res.status(200).json({
-      message: 'Inicio de sesión con Google exitoso.',
-      token: appToken,
-      user: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        role: user.role,
-        profilePicture: user.profile_picture
-      }
-    });
+    if (!process.env.JWT_SECRET) {
+        console.error('[Google Auth] JWT_SECRET no configurado en las variables de entorno');
+        return res.status(500).json({ message: 'Error de configuración del servidor.' });
+    }
 
-  } catch (error) {
-    console.error('Error en la autenticación de Google:', error);
-    res.status(500).json({ message: 'Error interno del servidor al autenticar con Google.', details: error.message });
-  }
+    try {
+        console.log('[Google Auth] Verificando token con Client ID:', process.env.GOOGLE_CLIENT_ID);
+        
+        const ticket = await client.verifyIdToken({
+            idToken,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        });
+        
+        const payload = ticket.getPayload();
+        console.log('[Google Auth] Payload verificado:', {
+            email: payload.email,
+            name: payload.name,
+            aud: payload.aud // Esto muestra el audience del token
+        });
+
+        const { email, name, picture } = payload;
+
+        let user = await User.findByEmail(email);
+        let isNewUser = false;
+
+        if (!user) {
+            // Usuario nuevo - crear con rol 'user' (cliente)
+            const usernameFromGoogle = name || email.split('@')[0];
+            console.log(`[Google Auth] Usuario nuevo: ${email}. Registrándolo con rol 'user'.`);
+            
+            user = await User.create({ 
+                email, 
+                username: usernameFromGoogle, 
+                picture, 
+                role: 'user'
+            });
+            
+            isNewUser = true;
+            console.log('[Google Auth] Nuevo usuario registrado exitosamente:', user);
+        } else {
+            console.log(`[Google Auth] Usuario existente: ${email}. Rol actual: ${user.role}`);
+            
+            // Usuario existente - actualizar datos si es necesario
+            const usernameFromGoogle = name || email.split('@')[0];
+            if (user.username !== usernameFromGoogle || user.profile_picture !== picture) {
+                await User.update(user.id, { 
+                    username: usernameFromGoogle, 
+                    picture 
+                });
+                
+                const updatedUser = await User.findById(user.id);
+                user = updatedUser;
+                console.log('[Google Auth] Datos de usuario existente actualizados.');
+            }
+        }
+
+        // Generar JWT
+        const token = jwt.sign(
+            {
+                id: user.id,
+                username: user.username,
+                email: user.email,
+                role: user.role,
+                profilePicture: user.profile_picture
+            },
+            process.env.JWT_SECRET,
+            { expiresIn: process.env.JWT_LIFETIME || '1h' }
+        );
+
+        console.log(`[Google Auth] JWT generado exitosamente para ${email}. Rol: ${user.role}`);
+
+        // Respuesta exitosa
+        res.status(200).json({ 
+            token,
+            user: {
+                id: user.id,
+                username: user.username,
+                email: user.email,
+                role: user.role,
+                profilePicture: user.profile_picture
+            },
+            isNewUser
+        });
+
+    } catch (error) {
+        console.error('[Google Auth] Error en la autenticación de Google:', error);
+        
+        // Manejo específico de errores
+        if (error.message.includes('audience')) {
+            console.error('[Google Auth] Error de audience - Verificar GOOGLE_CLIENT_ID');
+            return res.status(401).json({ 
+                message: 'Error de configuración: Client ID incorrecto.',
+                error: 'INVALID_CLIENT_ID'
+            });
+        }
+        
+        if (error.message.includes('Token')) {
+            return res.status(401).json({ 
+                message: 'Token de Google inválido.',
+                error: 'INVALID_TOKEN'
+            });
+        }
+        
+        res.status(500).json({ 
+            message: 'Error interno del servidor durante la autenticación.',
+            error: 'INTERNAL_SERVER_ERROR'
+        });
+    }
 };

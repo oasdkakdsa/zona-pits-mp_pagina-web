@@ -1,8 +1,6 @@
 // frontend/src/App.jsx
 import './index.css';
 import { AuthProvider } from './context/AuthContext'; // Importa el proveedor de autenticación
-
-// Importa tus componentes de página
 import Navbar from './components/Navbar'; // Tu Navbar existente
 
 // Importa Outlet, que es crucial para los layouts en react-router-dom v6+

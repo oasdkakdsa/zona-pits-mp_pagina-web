@@ -4,14 +4,14 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 
-const authRoutes = require('./routes/auth'); // Estas rutas ahora solo tendrán /google
+const authRoutes = require('./routes/auth'); // Estas rutas ahora solo tendrán /google y /finalize-google-registration
 const userRoutes = require('./routes/users');
 const profileRoutes = require('./routes/profile');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(cors({ origin: 'http://localhost:5173' }));
+app.use(cors({ origin: 'http://localhost:5173' })); // Asegúrate que tu frontend tiene este origen
 app.use(express.json());
 // servir estáticos
 app.use('/uploads/profile_pictures', express.static(path.join(__dirname, 'uploads/profile_pictures')));

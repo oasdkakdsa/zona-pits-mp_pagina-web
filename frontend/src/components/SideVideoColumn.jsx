@@ -4,7 +4,6 @@ import { IoCloseCircleOutline, IoPlayCircleOutline } from 'react-icons/io5'; // 
 
 function SideVideoColumn({ isOpen, onClose }) {
   // Define un array de videos de ejemplo para cada sección.
-  // Cuando tu jefe te dé los videos, los reemplazarás aquí.
   const tipsVideos = [
     { id: 1, title: 'Tip 1: Mantenimiento Preventivo de Motores', thumbnail: 'https://via.placeholder.com/150x80?text=Video+Tip+1' },
     { id: 2, title: 'Tip 2: Inspección Diaria de Trenes de Rodaje', thumbnail: 'https://via.placeholder.com/150x80?text=Video+Tip+2' },
